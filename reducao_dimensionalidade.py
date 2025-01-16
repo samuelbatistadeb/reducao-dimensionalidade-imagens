@@ -1,45 +1,52 @@
 from PIL import Image
-import matplotlib.pyplot as plt
-import numpy as np
 
-# Definir o caminho da imagem local
-image_path = "./image-1.jpg"  # Substitua pelo caminho correto da sua imagem
+# Converter para tons de cinza manualmente
+def rgb_to_gray(r, g, b):
+    # Fórmula simples de conversão para tons de cinza (média ponderada)
+    return int(0.299 * r + 0.587 * g + 0.114 * b)
+# Converter para preto e branco (usando um threshold de 128)
+def rgb_to_bw(gray_value, threshold=128):
+    return 255 if gray_value > threshold else 0
 
-# Carregar a imagem
+# Abrir a imagem
+image_path = './image-1.jpg'  # Caminho da sua imagem
 img = Image.open(image_path)
 
-# Carregar a imagem
-plt.imshow(img)
-plt.axis('off')  # Opcional: remove os eixos da imagem
-plt.show()
+# Converter a imagem para tons de cinza
+width, height = img.size
+img_gray = Image.new("L", (width, height))  # Nova imagem em tons de cinza
 
-# Converter para tons de cinza
-img_gray = img.convert('L')
+pixels = img.load()  # Carrega os pixels da imagem original
+pixels_gray = img_gray.load()
 
-# Converter para preto e branco (threshold)
-# Definindo o valor do limiar (threshold). O valor 128 é um bom valor (entre 0 e 255).
-threshold = 128
-img_bw = img_gray.point(lambda p: 255 if p > threshold else 0)
+for i in range(width):
+    for j in range(height):
+        r, g, b = pixels[i, j]
+        gray = rgb_to_gray(r, g, b)
+        pixels_gray[i, j] = gray
 
 
-# Configurar a exibição das 3 imagens lado a lado
-fig, axs = plt.subplots(1, 3, figsize=(15, 5))  # 1 linha e 3 colunas
+# Converter para preto e branco
+img_bw = Image.new("1", (width, height))  # Nova imagem binária (preto e branco)
+pixels_bw = img_bw.load()
 
-# Exibir a imagem original
-axs[0].imshow(img)
-axs[0].axis('off')  # Remover os eixos
-axs[0].set_title('Original')
+for i in range(width):
+    for j in range(height):
+        gray = pixels_gray[i, j]
+        bw = rgb_to_bw(gray)
+        pixels_bw[i, j] = bw
 
-# Exibir a imagem em tons de cinza
-axs[1].imshow(img_gray, cmap='gray')
-axs[1].axis('off')  # Remover os eixos
-axs[1].set_title('Tons de Cinza')
+# Definindo o espaço entre as imagens
+space = 10  # Espaço de 10 pixels entre as imagens
 
-# Exibir a imagem em preto e branco
-axs[2].imshow(img_bw, cmap='gray')
-axs[2].axis('off')  # Remover os eixos
-axs[2].set_title('Preto e Branco')
+# Criar uma nova imagem com espaço extra para as 3 imagens e o espaço entre elas
+combined_width = width * 3 + space * 2  # Espaço extra entre as imagens
+combined_image = Image.new("RGB", (combined_width, height), (255, 255, 255))  # Fundo branco
 
-# Exibir as imagens
-plt.tight_layout()  # Ajusta o layout para não sobrepor as imagens
-plt.show()
+# Colocar as imagens na nova imagem com o espaço entre elas
+combined_image.paste(img, (0, 0))  # A imagem original vai para a primeira posição
+combined_image.paste(img_gray.convert("RGB"), (width + space, 0))  # A imagem em tons de cinza vai para a segunda
+combined_image.paste(img_bw.convert("RGB"), (2 * width + 2 * space, 0))  # A imagem preto e branco vai para a terceira
+
+# Exibir a imagem combinada
+combined_image.show()
