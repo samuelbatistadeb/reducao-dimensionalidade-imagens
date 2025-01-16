@@ -1,129 +1,91 @@
-# **Processamento de Imagens: Conversão para Tons de Cinza e Preto e Branco**
+# Projeto de Conversão de Imagem para Tons de Cinza e Preto e Branco
 
-Este projeto realiza a conversão de uma imagem para diferentes formatos de visualização: a imagem original, em tons de cinza e em preto e branco. O código é baseado na biblioteca **PIL** (Python Imaging Library) para manipulação de imagens e **Matplotlib** para visualização. As imagens são exibidas lado a lado para facilitar a comparação entre os diferentes processos de transformação.
+Este projeto implementa a conversão de uma imagem para **tons de cinza** e **preto e branco** (binária), utilizando a biblioteca **Pillow** (Python Imaging Library). O processo envolve a manipulação dos pixels de uma imagem para gerar três versões dela: a original, a em tons de cinza e a em preto e branco. As imagens geradas são exibidas lado a lado, com contornos e espaçamento para facilitar a visualização.
 
-## **Objetivo**
+## Objetivo
 
-Este script visa realizar as seguintes transformações sobre uma imagem fornecida:
-1. Exibir a imagem original.
-2. Converter a imagem para **tons de cinza**.
-3. Converter a imagem para **preto e branco** usando um limiar (threshold).
-4. Exibir as três versões lado a lado.
+O objetivo deste projeto é demonstrar como é possível realizar operações de manipulação de imagens, como a conversão de cores, em Python usando a biblioteca **Pillow**. O projeto manipula os pixels de uma imagem para gerar versões em **tons de cinza** e **preto e branco**, exibindo-as em uma única imagem combinada.
 
-## **Requisitos**
+## Funcionalidades
 
-Este código requer as seguintes bibliotecas:
+1. **Leitura de Imagem**: O código começa lendo uma imagem a partir do caminho fornecido.
+2. **Conversão para Tons de Cinza**: A imagem é convertida para tons de cinza utilizando a fórmula de média ponderada dos componentes RGB.
+3. **Conversão para Preto e Branco**: A imagem em tons de cinza é convertida para uma versão binária (preto e branco) utilizando um limiar de 128.
+4. **Exibição das Imagens**: As imagens geradas são combinadas em uma única imagem, lado a lado, com espaçamento e contorno branco, para uma visualização mais clara.
+5. **Espaçamento e Contorno**: A imagem final é exibida com um espaçamento configurável entre as versões e um contorno branco ao redor de cada uma.
 
-- **PIL (Pillow)**: Biblioteca para processamento de imagens em Python.
-- **Matplotlib**: Biblioteca para visualização de gráficos e imagens.
-- **Numpy** (opcional): Para manipulação avançada de arrays, embora não seja utilizado diretamente no código atual.
+## Dependências
 
-### Para instalar as dependências, execute o seguinte comando no terminal:
+Este projeto utiliza a biblioteca **Pillow** para manipulação de imagens. Para instalar, utilize o seguinte comando:
 
 ```bash
-pip install pillow matplotlib numpy 
+pip install Pillow
 ```
-## **Como Usar**
+## Estrutura do Código
 
-1. **Obtenha a imagem**: O código utiliza um caminho local para a imagem. Certifique-se de ter uma imagem em seu diretório de trabalho ou altere a variável `image_path` para apontar para a localização correta.
+### Função `rgb_to_gray(r, g, b)`
 
-2. **Substitua o caminho da imagem**: A linha abaixo deve ser ajustada para apontar para a imagem desejada.
+Esta função converte os valores RGB de um pixel para um valor de escala de cinza, utilizando uma fórmula de média ponderada para considerar a percepção humana das cores. A fórmula utilizada é a seguinte:
+```python
+int(0.299 * r + 0.587 * g + 0.114 * b)
+```
+- **`r`**: Valor da componente vermelha.
+- **`g`**: Valor da componente verde.
+- **`b`**: Valor da componente azul.
 
-    ```python
-    image_path = "./image-1.jpg"  # Substitua pelo caminho correto da sua imagem
-    ```
+Essa fórmula calcula um valor único que representa o grau de luminosidade do pixel, aproximando a percepção do olho humano. Ela é frequentemente utilizada para conversões de imagem para tons de cinza.
 
-3. **Execute o código**: Execute o script em um ambiente Python. O script irá:
-    - Carregar e exibir a imagem original.
-    - Converter a imagem para tons de cinza.
-    - Converter a imagem para preto e branco utilizando um limiar (threshold).
-    - Exibir as três imagens lado a lado.
+### Função `rgb_to_bw(gray_value, threshold=128)`
 
-## **Fluxo do Código**
+Esta função converte um valor de escala de cinza em uma imagem binária (preto e branco). O valor de cinza é comparado com um limiar (threshold), que por padrão é 128. Se o valor de cinza for maior que 128, o pixel se torna **branco (255)**; caso contrário, se o valor for menor ou igual a 128, o pixel se torna **preto (0)**.
+```python
+return 255 if gray_value > threshold else 0
+```
+- **`gray_value`**: O valor do pixel em tons de cinza.
+- **`threshold`**: O limiar para decidir se o pixel será branco ou preto. O valor padrão é 128, mas ele pode ser ajustado.
 
-1. **Carregamento da Imagem**: O script carrega a imagem do caminho especificado usando o **Pillow**.
+### Fluxo do Código
 
-    ```python
-    img = Image.open(image_path)
-    ```
+1. **Carregamento da Imagem**: A imagem é carregada a partir do caminho especificado no início do código.
+2. **Conversão para Tons de Cinza**: Para cada pixel da imagem original, o código chama a função `rgb_to_gray()`, convertendo os valores RGB para um único valor de escala de cinza. Este valor é armazenado na nova imagem em tons de cinza (`img_gray`).
+3. **Conversão para Preto e Branco**: Com a imagem em tons de cinza criada, o código converte os valores de cinza para preto e branco (imagem binária) utilizando a função `rgb_to_bw()`, e armazena os valores resultantes em `img_bw`.
+4. **Criação da Imagem Combinada**: Uma nova imagem é criada para combinar as três versões da imagem (original, tons de cinza, e preto e branco), colocando-as lado a lado. A largura total da nova imagem é ajustada para acomodar as três imagens com um espaço entre elas, configurado pela variável `space`.
+5. **Exibição da Imagem**: A imagem final, com as três versões da imagem original dispostas lado a lado, é exibida ao usuário com o método `show()` da biblioteca Pillow.
 
-2. **Exibição da Imagem Original**: A imagem original é exibida com a remoção dos eixos de coordenadas para uma visualização limpa.
+### Detalhamento do Uso dos Loops `for`
 
-    ```python
-    plt.imshow(img)
-    plt.axis('off')  # Opcional: remove os eixos da imagem
-    plt.show()
-    ```
+Os loops `for` aninhados são utilizados para iterar sobre todos os pixels da imagem. O primeiro loop percorre as colunas da imagem (`i`), e o segundo loop percorre as linhas da imagem (`j`). Isso garante que todos os pixels sejam acessados.
 
-3. **Conversão para Tons de Cinza**: A imagem é convertida para tons de cinza com o método `.convert('L')`.
+O código usa o método `load()` para carregar os pixels da imagem original e das imagens em tons de cinza e preto e branco. Através desse método, podemos acessar e modificar diretamente os valores dos pixels.
 
-    ```python
-    img_gray = img.convert('L')
-    ```
+### Criação da Imagem Final
 
-4. **Conversão para Preto e Branco**: O código aplica um limiar para a conversão da imagem em uma versão binária (preto e branco). Aqui, a variável `threshold` define o valor de corte:
-    - **Pixels com valor maior que 128** são transformados em **branco** (255).
-    - **Pixels com valor menor ou igual a 128** são transformados em **preto** (0).
+A imagem final é criada utilizando o método `Image.new()`, que cria uma nova imagem com as dimensões apropriadas. A largura é calculada com base na largura das três imagens, somada ao espaço entre elas. A função `paste()` é utilizada para colocar as imagens individuais na nova imagem, cada uma na sua posição apropriada, respeitando o espaço definido.
 
-    ```python
-    threshold = 128
-    img_bw = img_gray.point(lambda p: 255 if p > threshold else 0)
-    ```
+## Como Usar
 
-5. **Exibição das Imagens Lado a Lado**: As imagens são exibidas em uma figura com 3 subgráficos (subplots). Cada subgráfico exibe uma versão diferente da imagem (original, em tons de cinza e em preto e branco).
+1. **Instale as dependências**:
 
-    ```python
-    fig, axs = plt.subplots(1, 3, figsize=(15, 5))  # 1 linha e 3 colunas
+```bash
+pip install Pillow
+```
+2. **Altere o caminho da imagem**: No código, altere o caminho da imagem (`image_path = './image-1.jpg'`) para o local onde sua imagem está armazenada.
 
-    axs[0].imshow(img)
-    axs[0].axis('off')
-    axs[0].set_title('Original')
+3. **Execute o código**: Após garantir que a imagem está no caminho correto e as dependências foram instaladas, execute o código em seu ambiente Python.
 
-    axs[1].imshow(img_gray, cmap='gray')
-    axs[1].axis('off')
-    axs[1].set_title('Tons de Cinza')
+4. **Visualize a imagem combinada**: O código irá gerar uma janela com a imagem original, a versão em tons de cinza e a versão em preto e branco lado a lado, com o contorno e o espaçamento configurados.
 
-    axs[2].imshow(img_bw, cmap='gray')
-    axs[2].axis('off')
-    axs[2].set_title('Preto e Branco')
+## Saída Esperada
 
-    plt.tight_layout()  # Ajusta o layout para não sobrepor as imagens
-    plt.show()
-    ```
+Ao executar o código, a saída será uma **única imagem** que mostra as três versões da imagem original dispostas **lado a lado**:
 
-## **Explicação do Código**
+As imagens são organizadas com **espaçamento de 10 pixels** entre elas e **contorno branco** ao redor de cada uma, criando uma visualização clara e organizada.
 
-### **Bibliotecas Utilizadas**
+**Exemplo visual:**
 
-- **Pillow (PIL)**:
-  - `Image.open(image_path)`: Abre e carrega a imagem do caminho especificado.
-  - `.convert('L')`: Converte a imagem para escala de cinza.
-  - `.point(lambda p: 255 if p > threshold else 0)`: Aplica o limiar para converter a imagem em preto e branco.
-
-- **Matplotlib**:
-  - `plt.imshow(img)`: Exibe uma imagem.
-  - `plt.axis('off')`: Remove os eixos para uma visualização limpa.
-  - `plt.subplots(1, 3, figsize=(15, 5))`: Cria 1 linha e 3 colunas de subgráficos para exibir as imagens lado a lado.
-  - `plt.tight_layout()`: Ajusta o layout para evitar sobreposição.
-
-### **Definição do Threshold**
-
-O limiar (threshold) é definido para 128, o que significa que:
-- Valores de pixel maiores que 128 serão convertidos em **branco (255)**.
-- Valores de pixel menores ou iguais a 128 serão convertidos em **preto (0)**.
-
-Este valor pode ser ajustado dependendo da imagem que está sendo processada, permitindo maior controle sobre a definição do que é considerado **branco** ou **preto** na imagem binária.
-
-## **Exemplo de Saída**
-
-Ao executar o código, as imagens serão exibidas em um layout com três colunas, como mostrado abaixo:
-
-| Original                       | Tons de Cinza                | Preto e Branco               |
-|---------------------------------|------------------------------|------------------------------|
-| <img src="image-1.jpg" width="200" height="200"/> | <img src="image-1_gray.png" width="200" height="200"/> | <img src="image-1-bw.png" width="200" height="200"/> |
+![Exemplo de imagem combinada com as versões original, cinza e preto e branco](./image-unique.png)
 
 
-As imagens serão dispostas lado a lado para facilitar a comparação entre a versão original, a versão em tons de cinza e a versão binarizada.
 
 ## **Considerações Finais**
 
